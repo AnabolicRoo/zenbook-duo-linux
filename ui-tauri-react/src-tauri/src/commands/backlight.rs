@@ -20,7 +20,9 @@ fn daemon_ack_or_transport_fallback(
     match response {
         Ok(DaemonResponse::Ack) => Ok(()),
         Ok(DaemonResponse::Error { message }) => Err(message),
-        Ok(other) => Err(format!("Unexpected daemon response while {action}: {other:?}")),
+        Ok(other) => Err(format!(
+            "Unexpected daemon response while {action}: {other:?}"
+        )),
         Err(_) => fallback(),
     }
 }
@@ -39,10 +41,12 @@ mod tests {
 
     #[test]
     fn daemon_ack_mapping_surfaces_error_and_unexpected_response() {
-        assert!(daemon_ack_or_transport_fallback(Ok(DaemonResponse::Ack), "testing", || {
-            Err("fallback should not run".into())
-        })
-        .is_ok());
+        assert!(
+            daemon_ack_or_transport_fallback(Ok(DaemonResponse::Ack), "testing", || {
+                Err("fallback should not run".into())
+            })
+            .is_ok()
+        );
 
         assert_eq!(
             daemon_ack_or_transport_fallback(
@@ -56,17 +60,21 @@ mod tests {
             "daemon rejected"
         );
 
-        assert!(daemon_ack_or_transport_fallback(Ok(DaemonResponse::Pong), "testing", || Ok(()))
-            .expect_err("unexpected response should fail")
-            .contains("Unexpected daemon response"));
+        assert!(
+            daemon_ack_or_transport_fallback(Ok(DaemonResponse::Pong), "testing", || Ok(()))
+                .expect_err("unexpected response should fail")
+                .contains("Unexpected daemon response")
+        );
     }
 
     #[test]
     fn daemon_ack_mapping_falls_back_only_on_transport_failure() {
-        assert!(daemon_ack_or_transport_fallback(Err("socket missing".into()), "testing", || {
-            Ok(())
-        })
-        .is_ok());
+        assert!(
+            daemon_ack_or_transport_fallback(Err("socket missing".into()), "testing", || {
+                Ok(())
+            })
+            .is_ok()
+        );
         assert_eq!(
             daemon_ack_or_transport_fallback(Err("socket missing".into()), "testing", || {
                 Err("fallback failed".into())

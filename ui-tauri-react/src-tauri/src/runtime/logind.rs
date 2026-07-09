@@ -77,7 +77,11 @@ async fn watch_logind(state: Arc<RwLock<RuntimeState>>) -> Result<(), zbus::Erro
                 .and_then(|value| value.downcast_ref::<bool>().ok())
             {
                 if let Err(err) =
-                    crate::runtime::daemon::handle_lid_closed_change(&state, lid_closed).await
+                    crate::runtime::daemon::DisplayReplayPolicy::handle_lid_closed_change(
+                        &state,
+                        lid_closed,
+                    )
+                    .await
                 {
                     if crate::runtime::daemon::is_display_session_deferral(&err) {
                         let _ = logger::append_line(format!(
@@ -105,7 +109,10 @@ async fn watch_logind(state: Arc<RwLock<RuntimeState>>) -> Result<(), zbus::Erro
 }
 
 async fn sync_initial_lid_closed_state(state: &Arc<RwLock<RuntimeState>>, lid_closed: bool) {
-    if let Err(err) = crate::runtime::daemon::handle_lid_closed_change(state, lid_closed).await {
+    if let Err(err) =
+        crate::runtime::daemon::DisplayReplayPolicy::handle_lid_closed_change(state, lid_closed)
+            .await
+    {
         if crate::runtime::daemon::is_display_session_deferral(&err) {
             let _ = logger::append_line(format!(
                 "rust-daemon: initial lid state display update deferred: {err}"

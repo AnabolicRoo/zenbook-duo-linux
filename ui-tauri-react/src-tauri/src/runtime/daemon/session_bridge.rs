@@ -160,7 +160,9 @@ async fn mark_session_agent_disconnected(state: &Arc<RwLock<RuntimeState>>, reas
     drop(guard);
 
     if was_connected {
-        if let Err(err) = ServiceController::queue_target_user_unit_restart("zenbook-duo-session-agent.service") {
+        if let Err(err) =
+            ServiceController::queue_target_user_unit_restart("zenbook-duo-session-agent.service")
+        {
             log::warn!("failed to queue session agent restart: {err}");
             let _ = logger::append_line(format!(
                 "rust-daemon: failed to queue session agent restart: {}",
@@ -184,4 +186,3 @@ async fn mark_session_agent_disconnected(state: &Arc<RwLock<RuntimeState>>, reas
 pub(super) fn should_notify_session_agent_disconnect(reason: &str) -> bool {
     !is_display_session_deferral(reason)
 }
-

@@ -297,7 +297,10 @@ pub(super) fn parse_gdctl_output(output: &str) -> Result<DisplayLayout, String> 
     Ok(DisplayLayout { displays })
 }
 
-pub(super) fn gnome_mode_arg(display: &DisplayInfo, current_layout: Option<&DisplayLayout>) -> String {
+pub(super) fn gnome_mode_arg(
+    display: &DisplayInfo,
+    current_layout: Option<&DisplayLayout>,
+) -> String {
     if let Some(mode) = display.current_mode.backend_mode_id.as_ref() {
         return mode.clone();
     }
@@ -500,4 +503,3 @@ pub(super) fn set_gnome_orientation(orientation: &Orientation) -> Result<(), Str
 
     run_command("gdctl", &args)
 }
-

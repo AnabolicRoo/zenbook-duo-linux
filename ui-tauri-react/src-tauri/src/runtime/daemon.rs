@@ -503,7 +503,7 @@ async fn replay_current_display_mode_with_disconnect(
     scale: f64,
     disconnect_on_failure: bool,
 ) -> Result<(), String> {
-    if state.read().await.lid_closed {
+    if attached && state.read().await.lid_closed {
         if apply_external_only_clamshell_layout(state, disconnect_on_failure).await? {
             let _ = logger::append_line(
                 "rust-daemon: enforced external-only display layout while lid is closed",
@@ -1711,6 +1711,62 @@ mod tests {
         .expect("external-only layout should apply");
 
         assert!(state.read().await.lid_closed);
+
+        server.await.expect("join session server");
+        let _ = fs::remove_file(&socket_path);
+    }
+
+    #[tokio::test]
+    async fn keyboard_detach_replays_dock_mode_even_when_lid_state_is_stale_closed() {
+        let socket_path = unique_test_socket_path("detach-stale-lid-closed");
+        let listener = UnixListener::bind(&socket_path).expect("bind test session socket");
+
+        let server = tokio::spawn(async move {
+            let (stream, _) = listener.accept().await.expect("accept dock replay client");
+            let (reader, mut writer) = stream.into_split();
+            let mut lines = BufReader::new(reader).lines();
+            let line = lines
+                .next_line()
+                .await
+                .expect("read dock replay")
+                .expect("dock replay line");
+            let envelope: Envelope<SessionCommand> =
+                serde_json::from_str(&line).expect("decode dock replay");
+            match envelope.payload {
+                SessionCommand::SetDockMode {
+                    attached,
+                    scale,
+                    layout,
+                } => {
+                    assert!(!attached);
+                    assert_eq!(scale, 1.5);
+                    assert!(layout.is_none());
+                }
+                other => panic!("unexpected session command: {other:?}"),
+            }
+            let reply =
+                serde_json::to_string(&Envelope::new(SessionResponse::Ack)).expect("encode ack");
+            writer.write_all(reply.as_bytes()).await.expect("write ack");
+            writer.write_all(b"\n").await.expect("terminate ack");
+        });
+
+        let state = Arc::new(RwLock::new(RuntimeState::default()));
+        {
+            let mut guard = state.write().await;
+            guard.session_agent.connected = true;
+            guard.session_agent.socket_path = Some(socket_path.to_string_lossy().into_owned());
+            guard.lid_closed = true;
+            guard.status.keyboard_attached = false;
+            guard.settings.default_scale = 1.5;
+        }
+
+        timeout(
+            Duration::from_secs(1),
+            replay_current_display_mode(&state, false, 1.5),
+        )
+        .await
+        .expect("detach replay should not hang")
+        .expect("detach dock replay should succeed");
 
         server.await.expect("join session server");
         let _ = fs::remove_file(&socket_path);

@@ -215,7 +215,6 @@ pub(super) fn display_orientation_from_sensor_value(
     }
 }
 
-
 fn runtime_log_info(message: impl AsRef<str>) {
     let text = message.as_ref();
     let _ = crate::runtime::logger::append_line(format!("session-agent: {text}"));

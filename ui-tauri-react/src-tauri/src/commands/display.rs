@@ -27,7 +27,9 @@ fn daemon_ack_or_transport_fallback(
     match response {
         Ok(DaemonResponse::Ack) => Ok(()),
         Ok(DaemonResponse::Error { message }) => Err(message),
-        Ok(other) => Err(format!("Unexpected daemon response while {action}: {other:?}")),
+        Ok(other) => Err(format!(
+            "Unexpected daemon response while {action}: {other:?}"
+        )),
         Err(_) => fallback(),
     }
 }
@@ -84,19 +86,23 @@ mod tests {
             .expect_err("daemon error should fail"),
             "daemon rejected"
         );
-        assert!(daemon_display_layout_or_transport_fallback(Ok(DaemonResponse::Pong), || {
-            Ok(empty_layout())
-        })
-        .expect_err("unexpected response should fail")
-        .contains("Unexpected daemon response"));
+        assert!(
+            daemon_display_layout_or_transport_fallback(Ok(DaemonResponse::Pong), || {
+                Ok(empty_layout())
+            })
+            .expect_err("unexpected response should fail")
+            .contains("Unexpected daemon response")
+        );
     }
 
     #[test]
     fn display_layout_mapping_falls_back_on_transport_failure() {
-        assert!(daemon_display_layout_or_transport_fallback(Err("socket missing".into()), || {
-            Ok(empty_layout())
-        })
-        .is_ok());
+        assert!(
+            daemon_display_layout_or_transport_fallback(Err("socket missing".into()), || {
+                Ok(empty_layout())
+            })
+            .is_ok()
+        );
     }
 
     #[test]
@@ -112,12 +118,16 @@ mod tests {
             .expect_err("daemon error should fail"),
             "daemon rejected"
         );
-        assert!(daemon_ack_or_transport_fallback(Ok(DaemonResponse::Pong), "testing", || Ok(()))
-            .expect_err("unexpected response should fail")
-            .contains("Unexpected daemon response"));
-        assert!(daemon_ack_or_transport_fallback(Err("socket missing".into()), "testing", || {
-            Ok(())
-        })
-        .is_ok());
+        assert!(
+            daemon_ack_or_transport_fallback(Ok(DaemonResponse::Pong), "testing", || Ok(()))
+                .expect_err("unexpected response should fail")
+                .contains("Unexpected daemon response")
+        );
+        assert!(
+            daemon_ack_or_transport_fallback(Err("socket missing".into()), "testing", || {
+                Ok(())
+            })
+            .is_ok()
+        );
     }
 }

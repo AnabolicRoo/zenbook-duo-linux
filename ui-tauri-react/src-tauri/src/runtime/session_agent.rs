@@ -20,7 +20,10 @@ use crate::ipc::protocol::{
     DaemonRequest, DaemonResponse, Envelope, SessionBackend, SessionCommand, SessionResponse,
 };
 use crate::models::{DisplayInfo, DisplayLayout, Orientation};
-use crate::runtime::{compositor, paths, session, session_display_planner::DockModePlanner, session_ipc, session_watchers, state::RuntimeState};
+use crate::runtime::{
+    compositor, paths, session, session_display_planner::DockModePlanner, session_ipc,
+    session_watchers, state::RuntimeState,
+};
 
 pub async fn run() -> Result<(), String> {
     ensure_user_runtime_dir()?;
@@ -502,7 +505,11 @@ fn send_dock_mode_notification(attached: bool) -> Result<(), String> {
     )
 }
 
-pub(crate) fn send_runtime_notification(title: &str, message: &str, urgent: bool) -> Result<(), String> {
+pub(crate) fn send_runtime_notification(
+    title: &str,
+    message: &str,
+    urgent: bool,
+) -> Result<(), String> {
     let runtime_dir = env::var("XDG_RUNTIME_DIR")
         .map_err(|_| "XDG_RUNTIME_DIR is not set for runtime notifications".to_string())?;
     let bus_address = env::var("DBUS_SESSION_BUS_ADDRESS")
@@ -652,7 +659,8 @@ mod tests {
     #[test]
     fn dock_mode_planner_interface_reuses_existing_refresh_modes_for_attached_replay() {
         let layout = dual_internal_layout(120.0);
-        let planned = DockModePlanner::layout_from_base(&layout, false, 1.5).expect("planned layout");
+        let planned =
+            DockModePlanner::layout_from_base(&layout, false, 1.5).expect("planned layout");
 
         assert_eq!(planned.displays.len(), 2);
         assert_eq!(planned.displays[0].scale, 1.5);

@@ -66,10 +66,10 @@ pub mod tests {
 
     impl CommandRunner for FakeCommandRunner {
         fn output(&self, program: &str, args: &[&str]) -> Result<Output, String> {
-            self.calls
-                .lock()
-                .expect("calls lock")
-                .push((program.to_string(), args.iter().map(|arg| arg.to_string()).collect()));
+            self.calls.lock().expect("calls lock").push((
+                program.to_string(),
+                args.iter().map(|arg| arg.to_string()).collect(),
+            ));
             self.outputs
                 .lock()
                 .expect("outputs lock")

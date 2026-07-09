@@ -11,7 +11,10 @@ use crate::runtime::{daemon, state::RuntimeState};
 ///
 /// This Module owns the wire-level loop and protocol error semantics. The
 /// daemon Implementation owns the command behavior behind `dispatch_request`.
-pub async fn handle_client(stream: UnixStream, state: Arc<RwLock<RuntimeState>>) -> Result<(), String> {
+pub async fn handle_client(
+    stream: UnixStream,
+    state: Arc<RwLock<RuntimeState>>,
+) -> Result<(), String> {
     let (reader, mut writer) = stream.into_split();
     let mut lines = BufReader::new(reader).lines();
 

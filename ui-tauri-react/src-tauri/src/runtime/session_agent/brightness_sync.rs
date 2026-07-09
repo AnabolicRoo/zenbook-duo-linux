@@ -82,4 +82,3 @@ fn sync_secondary_brightness(level: u32) -> Result<(), String> {
         ))
     }
 }
-
