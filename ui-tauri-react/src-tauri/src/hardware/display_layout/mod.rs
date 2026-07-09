@@ -138,7 +138,6 @@ pub fn normalize_display_layout(layout: DisplayLayout) -> DisplayLayout {
     DisplayLayout { displays }
 }
 
-
 /// Get the current display layout through the selected compositor Adapter.
 pub fn get_display_layout() -> Result<DisplayLayout, String> {
     let layout = adapters::with_display_adapter(detect_backend(), |adapter| adapter.layout())?;
@@ -149,7 +148,9 @@ pub fn get_display_layout() -> Result<DisplayLayout, String> {
 /// Apply a display layout through the selected compositor Adapter.
 pub fn apply_display_layout(layout: &DisplayLayout) -> Result<(), String> {
     let normalized = normalize_display_layout(layout.clone());
-    adapters::with_display_adapter(detect_backend(), |adapter| adapter.apply_layout(&normalized))
+    adapters::with_display_adapter(detect_backend(), |adapter| {
+        adapter.apply_layout(&normalized)
+    })
 }
 
 fn detect_backend() -> SessionBackend {
@@ -174,20 +175,22 @@ fn run_niri_position_command(connector: &str, x: i32, y: i32) -> Result<(), Stri
 
 /// Set screen orientation through the selected compositor Adapter.
 pub fn set_orientation(orientation: &Orientation) -> Result<(), String> {
-    adapters::with_display_adapter(detect_backend(), |adapter| adapter.set_orientation(orientation))
-        .map_err(|message| {
-            if message == "Unsupported session backend for display layout" {
-                "Unsupported session backend for orientation control".to_string()
-            } else {
-                message
-            }
-        })
+    adapters::with_display_adapter(detect_backend(), |adapter| {
+        adapter.set_orientation(orientation)
+    })
+    .map_err(|message| {
+        if message == "Unsupported session backend for display layout" {
+            "Unsupported session backend for orientation control".to_string()
+        } else {
+            message
+        }
+    })
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::adapters::CompositorDisplayAdapter;
+    use super::*;
 
     fn test_display(connector: &str) -> DisplayInfo {
         let mode = make_display_mode(2880, 1800, 120.0);

@@ -1,6 +1,6 @@
 use crate::hardware::{display_layout, sysfs};
-use crate::runtime::host::{CommandRunner, ProcessCommandRunner};
 use crate::models::{ConnectionType, DisplayLayout, DuoStatus, Orientation};
+use crate::runtime::host::{CommandRunner, ProcessCommandRunner};
 
 pub fn current_status() -> DuoStatus {
     let mut status = sysfs::get_full_status();
@@ -81,8 +81,12 @@ mod tests {
     #[test]
     fn reads_radio_status_through_host_adapter() {
         let host = crate::runtime::host::tests::FakeCommandRunner::new([
-            Ok(crate::runtime::host::tests::FakeCommandRunner::success("enabled\n")),
-            Ok(crate::runtime::host::tests::FakeCommandRunner::success("unblocked\n")),
+            Ok(crate::runtime::host::tests::FakeCommandRunner::success(
+                "enabled\n",
+            )),
+            Ok(crate::runtime::host::tests::FakeCommandRunner::success(
+                "unblocked\n",
+            )),
         ]);
 
         assert!(wifi_enabled_with(&host));
@@ -90,7 +94,10 @@ mod tests {
         assert_eq!(
             host.calls(),
             vec![
-                ("nmcli".to_string(), vec!["radio".to_string(), "wifi".to_string()]),
+                (
+                    "nmcli".to_string(),
+                    vec!["radio".to_string(), "wifi".to_string()]
+                ),
                 (
                     "rfkill".to_string(),
                     vec![

@@ -8,7 +8,11 @@ use crate::models::DisplayLayout;
 pub(crate) struct DockModePlanner;
 
 impl DockModePlanner {
-    pub(crate) fn apply(attached: bool, scale: f64, layout: Option<DisplayLayout>) -> Result<(), String> {
+    pub(crate) fn apply(
+        attached: bool,
+        scale: f64,
+        layout: Option<DisplayLayout>,
+    ) -> Result<(), String> {
         super::session_agent::apply_dock_mode(attached, scale, layout)
     }
 

@@ -3,7 +3,11 @@ use super::*;
 pub(crate) struct NotificationSink;
 
 impl NotificationSink {
-    pub(crate) async fn runtime_error(state: &Arc<RwLock<RuntimeState>>, title: &str, message: &str) {
+    pub(crate) async fn runtime_error(
+        state: &Arc<RwLock<RuntimeState>>,
+        title: &str,
+        message: &str,
+    ) {
         notify_runtime_error(state, title, message).await;
     }
 }
@@ -129,4 +133,3 @@ pub(super) fn send_runtime_notification_direct(title: &str, message: &str) -> Re
         Err(format!("Runtime notification exited with {status}"))
     }
 }
-

@@ -376,7 +376,6 @@ fn push_status_events(
             "rust-daemon",
         ));
     }
-
 }
 
 fn connection_label(connection_type: &ConnectionType) -> &'static str {

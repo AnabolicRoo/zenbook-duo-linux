@@ -58,7 +58,9 @@ fn daemon_response_result(
     match response {
         Ok(DaemonResponse::Ack) => Ok(()),
         Ok(DaemonResponse::Error { message }) => Err(format!("{action} failed: {message}")),
-        Ok(other) => Err(format!("{action} failed: unexpected daemon response {other:?}")),
+        Ok(other) => Err(format!(
+            "{action} failed: unexpected daemon response {other:?}"
+        )),
         Err(_) => fallback().map_err(|message| format!("{action} failed: {message}")),
     }
 }
@@ -204,11 +206,8 @@ mod tests {
             "Set profile orientation failed: no session"
         );
 
-        let unexpected = daemon_response_result(
-            Ok(DaemonResponse::Pong),
-            "Set profile backlight",
-            || Ok(()),
-        );
+        let unexpected =
+            daemon_response_result(Ok(DaemonResponse::Pong), "Set profile backlight", || Ok(()));
         assert!(unexpected
             .expect_err("unexpected response should fail")
             .contains("unexpected daemon response"));

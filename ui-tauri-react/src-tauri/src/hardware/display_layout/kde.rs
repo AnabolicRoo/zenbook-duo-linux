@@ -218,9 +218,13 @@ mod tests {
 
     #[test]
     fn missing_primary_geometry_is_an_error_for_secondary_positioning() {
-        let result = rotated_secondary_position(&Orientation::Normal, Err("missing geometry".into()));
+        let result =
+            rotated_secondary_position(&Orientation::Normal, Err("missing geometry".into()));
 
-        assert_eq!(result.expect_err("missing geometry should fail"), "missing geometry");
+        assert_eq!(
+            result.expect_err("missing geometry should fail"),
+            "missing geometry"
+        );
     }
 
     #[test]
@@ -235,4 +239,3 @@ mod tests {
         );
     }
 }
-
